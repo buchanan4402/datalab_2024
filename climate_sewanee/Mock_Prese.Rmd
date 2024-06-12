@@ -1,0 +1,76 @@
+---
+title: "Sewanee Snowfall"
+author: "Buchanan Lindsey, Srijan Basnet, Shiraz Robinson II, Khalilah Karriem"
+date: "2024-06-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+
+library(tidyverse)
+library(dplyr)
+library(lubridate)
+library(ggthemes)
+#setwd("/Users/buchananlindsey/Desktop/buck_datalab/datalab_2024/climate_sewanee")
+
+weather <- read_csv("sewanee_weather.csv")
+```
+
+# Questions and Graphs
+
+### 4. How has Snowfall Changed Yearly Over the Dataset?
+```{r}
+#data manipulation
+snow_year <- weather %>%
+  filter(STATION == "USC00408184") %>%
+  filter(SNOW > 0) %>%
+  mutate(Year = year(DATE)) %>%
+  group_by(Year) %>%
+  summarise(avg_snowfall = mean(SNOW, na.rm = TRUE))
+
+#graphing
+ggplot(snow_year, aes(x =Year, y = avg_snowfall)) +
+  geom_line(color= "blue") + 
+  labs(
+    title = "Change in Snowfall Over Time", 
+    x ="Years", 
+    y="Average Snowfall (Inches)", 
+caption = "*Only Includes Days with Snowfall"
+)
+
+
+
+```
+
+
+
+
+### 6. Which Month Has the Most Daily Snowfall on Average?
+```{r}
+#data manipulation
+avg_snow_month <- weather %>% 
+  filter(STATION == "USC00408184") %>% 
+  mutate(month = months(DATE)) %>% 
+  group_by(month) %>% 
+  summarise(avg_snowfall = mean(SNOW, na.rm = TRUE)) %>% 
+  arrange(desc(avg_snowfall)) %>% 
+  mutate(month=fct_reorder(factor(month),desc(avg_snowfall)))
+
+#making graph
+ggplot(avg_snow_month, aes(x = month, y = avg_snowfall))+
+  geom_col(col = "darkgreen", fill = 'black', alpha = 0.7)+
+  theme_stata()+
+  theme(axis.text.x = element_text(size = 6.5))+
+  labs(
+    x = "Month",
+    y = "Avergae Snowfall per Day(inches)",
+    title = "Average Snowfall per Day vs Month",
+    subtitle = "From All Months Since 2000",
+    caption = "*Includes Days with Zero Snowfall"
+  )
+
+  
+  
+```
+
